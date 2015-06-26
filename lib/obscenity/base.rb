@@ -18,8 +18,17 @@ module Obscenity
         @whitelist = value == :default ? set_list_content(Obscenity::Config.new.whitelist) : value
       end
 
+      def word_size
+        @word_size = Obscenity.config.word_size
+      end
+
+      def word_size=(value)
+        Obscenity.config.word_size = value
+        word_size
+      end
+
       def profane?(text)
-        return(false) unless text.to_s.size >= 3
+        return(false) unless text.to_s.size >= word_size
         blacklist.each do |foul|
           return(true) if text =~ /#{foul}/i && !whitelist.include?(foul)
         end
@@ -27,7 +36,7 @@ module Obscenity
       end
 
       def sanitize(text)
-        return(text) unless text.to_s.size >= 3
+        return(text) unless text.to_s.size >= word_size
         blacklist.each do |foul|
           text.gsub!(/#{foul}/i, replace(foul)) unless whitelist.include?(foul)
         end
@@ -42,7 +51,7 @@ module Obscenity
 
       def offensive(text)
         words = []
-        return(words) unless text.to_s.size >= 3
+        return(words) unless text.to_s.size >= word_size
         blacklist.each do |foul|
           words << foul if text =~ /#{foul}/i && !whitelist.include?(foul)
         end

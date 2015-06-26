@@ -1,11 +1,12 @@
 module Obscenity
   class Config
     
-    attr_accessor :replacement
+    attr_accessor :replacement, :word_size
     
     DEFAULT_WHITELIST = []
     DEFAULT_BLACKLIST = File.dirname(__FILE__) + "/../../config/blacklist.yml"
-    
+    DEFAULT_WORD_SIZE = 3
+
     def initialize
       yield(self) if block_given?
       validate_config_options
@@ -31,6 +32,10 @@ module Obscenity
       @whitelist = value == :default ? DEFAULT_WHITELIST : value
     end
     
+    def word_size
+      @word_size ||= DEFAULT_WORD_SIZE
+    end
+
     private
     def validate_config_options
       [@blacklist, @whitelist].each{ |content| validate_list_content(content) if content }
