@@ -19,20 +19,20 @@ module Obscenity extend self
     @config ||= Config.new
   end
   
-  def profane?(word)
-    Obscenity::Base.profane?(word)
+  def profane?(word, site_code = nil)
+    Obscenity::Base.profane?(word, site_code)
   end
   
-  def sanitize(text)
-    Obscenity::Base.sanitize(text)
+  def sanitize(text, site_code = nil)
+    Obscenity::Base.sanitize(text, site_code)
   end
   
   def replacement(chars)
     Obscenity::Base.replacement(chars)
   end
 
-  def offensive(text)
-    Obscenity::Base.offensive(text)
+  def offensive(text, site_code = nil)
+    Obscenity::Base.offensive(text, site_code)
   end
   
   

@@ -27,18 +27,30 @@ module Obscenity
         word_size
       end
 
-      def profane?(text)
+      def blacklist_by_site(site_code)
+        list = blacklist["default"] || []
+        list += blacklist["#{site_code}"] if blacklist["#{site_code}"].present?
+        list
+      end
+
+      def whitelist_by_site(site_code)
+        list = whitelist["default"] || []
+        list += whitelist["#{site_code}"] if whitelist["#{site_code}"].present?
+        list
+      end
+
+      def profane?(text, site_code = nil)
         return(false) unless text.to_s.size >= word_size
-        blacklist.each do |foul|
-          return(true) if text =~ /#{foul}/i && !whitelist.include?(foul)
+        blacklist_by_site(site_code).each do |foul|
+          return(true) if text =~ /#{foul}/i && !whitelist_by_site(site_code).include?(foul)
         end
         false
       end
 
-      def sanitize(text)
+      def sanitize(text, site_code = nil)
         return(text) unless text.to_s.size >= word_size
-        blacklist.each do |foul|
-          text.gsub!(/#{foul}/i, replace(foul)) unless whitelist.include?(foul)
+        blacklist_by_site(site_code).each do |foul|
+          text.gsub!(/#{foul}/i, replace(foul)) unless whitelist_by_site(site_code).include?(foul)
         end
         @scoped_replacement = nil
         text
@@ -49,11 +61,11 @@ module Obscenity
         self
       end
 
-      def offensive(text)
+      def offensive(text, site_code = nil)
         words = []
         return(words) unless text.to_s.size >= word_size
-        blacklist.each do |foul|
-          words << foul if text =~ /#{foul}/i && !whitelist.include?(foul)
+        blacklist_by_site(site_code).each do |foul|
+          words << foul if text =~ /#{foul}/i && !whitelist_by_site(site_code).include?(foul)
         end
         words.uniq
       end
