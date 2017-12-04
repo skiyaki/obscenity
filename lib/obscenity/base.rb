@@ -34,21 +34,27 @@ module Obscenity
       end
 
       def whitelist_by_site(site_code)
-        list = whitelist["default"] || []
+        list = []
         list += whitelist["#{site_code}"] if whitelist["#{site_code}"].present?
         list
       end
 
+      def allow_all?(site_code)
+        whitelist["#{site_code}"].present? && whitelist["#{site_code}"]["all"] == true
+      end
+
       def profane?(text, site_code = nil)
         return(false) unless text.to_s.size >= word_size
+        return(false) if allow_all?(site_code)
         blacklist_by_site(site_code).each do |foul|
-          return(true) if text =~ /#{foul}/i && !whitelist_by_site(site_code).include?(foul)
+          return(true) if text =~ /#{foul}/i && !whitelist_by_site.include?(foul)
         end
         false
       end
 
       def sanitize(text, site_code = nil)
         return(text) unless text.to_s.size >= word_size
+        return(text) if allow_all?(site_code)
         blacklist_by_site(site_code).each do |foul|
           text.gsub!(/#{foul}/i, replace(foul)) unless whitelist_by_site(site_code).include?(foul)
         end
@@ -64,6 +70,7 @@ module Obscenity
       def offensive(text, site_code = nil)
         words = []
         return(words) unless text.to_s.size >= word_size
+        return(words) if allow_all?(site_code)
         blacklist_by_site(site_code).each do |foul|
           words << foul if text =~ /#{foul}/i && !whitelist_by_site(site_code).include?(foul)
         end
