@@ -47,7 +47,7 @@ module Obscenity
         return(false) unless text.to_s.size >= word_size
         return(false) if allow_all?(site_code)
         blacklist_by_site(site_code).each do |foul|
-          return(true) if text =~ /#{foul}/i && !whitelist_by_site.include?(foul)
+          return(true) if text =~ /#{foul}/i && !whitelist_by_site(site_code).include?(foul)
         end
         false
       end
