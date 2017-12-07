@@ -27,36 +27,18 @@ module Obscenity
         word_size
       end
 
-      def blacklist_by_site(site_code)
-        list = blacklist["default"] || []
-        list += blacklist["#{site_code}"] if blacklist["#{site_code}"].present?
-        list
-      end
-
-      def whitelist_by_site(site_code)
-        list = []
-        list += whitelist["#{site_code}"] if whitelist["#{site_code}"].present?
-        list
-      end
-
-      def allow_all?(site_code)
-        whitelist["#{site_code}"].present? && whitelist["#{site_code}"]["all"] == true
-      end
-
-      def profane?(text, site_code = nil)
+      def profane?(text)
         return(false) unless text.to_s.size >= word_size
-        return(false) if allow_all?(site_code)
-        blacklist_by_site(site_code).each do |foul|
-          return(true) if text =~ /#{foul}/i && !whitelist_by_site(site_code).include?(foul)
+        blacklist.each do |foul|
+          return(true) if text =~ /#{foul}/i && !whitelist.include?(foul)
         end
         false
       end
 
-      def sanitize(text, site_code = nil)
+      def sanitize(text)
         return(text) unless text.to_s.size >= word_size
-        return(text) if allow_all?(site_code)
-        blacklist_by_site(site_code).each do |foul|
-          text.gsub!(/#{foul}/i, replace(foul)) unless whitelist_by_site(site_code).include?(foul)
+        blacklist.each do |foul|
+          text.gsub!(/#{foul}/i, replace(foul)) unless whitelist.include?(foul)
         end
         @scoped_replacement = nil
         text
@@ -67,12 +49,11 @@ module Obscenity
         self
       end
 
-      def offensive(text, site_code = nil)
+      def offensive(text)
         words = []
         return(words) unless text.to_s.size >= word_size
-        return(words) if allow_all?(site_code)
-        blacklist_by_site(site_code).each do |foul|
-          words << foul if text =~ /#{foul}/i && !whitelist_by_site(site_code).include?(foul)
+        blacklist.each do |foul|
+          words << foul if text =~ /#{foul}/i && !whitelist.include?(foul)
         end
         words.uniq
       end
